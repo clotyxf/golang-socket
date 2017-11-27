@@ -1,0 +1,72 @@
+{{define "title"}}首页{{end}}
+
+{{define "content"}}
+	hello{{.data.Uid}},this is first golang project!
+	<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<script src="/static/socket.io/socket.io.js"></script>
+	<script src="/static/socket.io/app.io.js"></script>
+	<script type="text/javascript">
+        var sock = null;
+        var wsuri = "ws://127.0.0.1:6380/socket";
+		
+		var obj = {
+	        public_socket: wsuri
+	    };
+	    //crm_io.init(obj);
+		
+		var tryTime=0;
+		
+		var sock = null;
+		
+		function contentSocket() {
+			sock = new WebSocket(wsuri);
+			
+			sock.onopen = function() {
+                console.log("connected to " + wsuri);
+				tryTime = 0;
+            }
+			
+			sock.onerror=function (evt) {
+				console.log(evt);	
+			}
+
+            sock.onclose = function(e) {
+                console.log("connection closed (" + e.code + ")");
+				//if (tryTime < 10) {
+	            //    setTimeout(function () {
+	            //        sock = null;
+	            //        tryTime++;
+	                    contentSocket();
+	            //    }, 3*1000);
+	            //} else {
+	            //    alert("重连失败.");
+	            //}
+            }
+			
+
+            sock.onmessage = function(e) {
+                console.log("message received: " + e.data);
+            }
+		}	
+	
+        window.onload = function() {
+
+            console.log("onload");
+			
+			contentSocket();
+        };
+
+        function send() {
+            var msg = document.getElementById('message').value;
+            sock.send(msg);
+        };
+		
+    </script>
+    <h1>WebSocket Echo Test</h1>
+    <form>
+        <p>
+            Message: <input id="message" type="text" value="Hello, world!">
+        </p>
+    </form>
+    <button onclick="send();">Send Message</button>
+{{end}}
